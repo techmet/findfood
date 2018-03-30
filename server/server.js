@@ -1,6 +1,7 @@
 import bodyParser from 'body-parser';
 import express from 'express';
 import path from 'path';
+import routes from './routes/routes';
 
 const app = express();
 
@@ -13,13 +14,8 @@ app.use(staticFiles);
 
 const router = express.Router();
 
-router.get('/api/cities', (req, res) => {
-    const cities = [
-        { name: 'New York City', population: 8175133 },
-        { name: 'Los Angeles', population: 3792621 },
-    ]
-    res.json(cities);
-});
+// Adding the api
+routes(router);
 
 app.use(router);
 

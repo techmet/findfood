@@ -1,8 +1,23 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { render } from 'react-dom';
 import './index.css';
-import App from './App';
-import registerServiceWorker from './registerServiceWorker';
+import App from './components/app';
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
+import { zomatoLiteYellow, zomatoLiteRed } from './common/constants';
 
-ReactDOM.render(<App />, document.getElementById('root'));
-registerServiceWorker();
+
+const muiTheme = getMuiTheme({
+	palette: {
+		primary1Color: zomatoLiteRed,
+		pickerHeaderColor: zomatoLiteRed,
+		accent1Color: zomatoLiteYellow
+	}
+});
+
+render((
+    <MuiThemeProvider muiTheme={muiTheme}>
+        <App />
+    </MuiThemeProvider>)
+    , document.getElementById('root')
+);

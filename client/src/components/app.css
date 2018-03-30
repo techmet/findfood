@@ -1,0 +1,47 @@
+body {
+  background-color: #eee;
+  font-family: "Roboto", Arial, Helvetica, sans-serif;
+  color: #252F38;
+  height: 100%;
+}
+
+.App-header {
+  background-color: #cb202d;
+  height: 50px;
+  padding: 10px;
+  color: white;
+  padding-top: 1px;
+}
+
+.App-title {
+  font-weight: 400;
+  font-size: 1.5em;
+}
+
+.App-intro {
+  font-size: large;
+}
+
+/* select css */
+
+/* 
+  ##Device = Desktops
+  ##Screen = 1281px to higher resolution desktops
+*/
+
+@media (min-width: 1281px) {
+  .select-current-location > div {
+    min-width: 400px;
+  }
+}
+
+/* 
+  ##Device = Laptops, Desktops
+  ##Screen = B/w 1025px to 1280px
+*/
+
+@media (max-width: 1280px) {
+  .select-current-location > div {
+    min-width: 250px;
+  }
+}
