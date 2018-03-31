@@ -4,6 +4,7 @@ import Subheader from 'material-ui/Subheader';
 import { isMobile } from 'react-device-detect';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
+import CircularProgress from 'material-ui/CircularProgress';
 
 import CurrentLocation from "./currentlocation";
 import { get } from '../common/http';
@@ -59,13 +60,16 @@ class Restaurants extends Component {
   getRestaurants = async (cityId, sortOrder) => {
     try {
       this.setState({
-        citySelected: true
+        citySelected: true,
+        loadingRestaurants: true,
+        restaurants: []
       });
       const sort = sortOrder ? { sortOrder } : {};
       const resp = await get(restaurantsUrl, { params: { cityId: cityId ? cityId : this.state.cityId, ...sort } });
       if (Array.isArray(resp.restaurants)) {
         this.setState({
-          restaurants: resp.restaurants.map(item => item.restaurant)
+          restaurants: resp.restaurants.map(item => item.restaurant),
+          loadingRestaurants: false
         });
       }
     } catch (error) {
@@ -113,11 +117,11 @@ class Restaurants extends Component {
           <CurrentLocation handleCityDelete={this.handleCityDelete} handleCitySelect={this.handleCitySelect} />
         </div>
         <div>
+          <Subheader style={{ fontSize: 17 }}>Restaurants</Subheader>
           {(
             () => {
               if (this.state.restaurants.length > 0) {
                 return <div>
-                  <Subheader style={{ fontSize: 17 }}>Restaurants</Subheader>
 
                   <FlatButton onClick={this.sortRestaurants} label={this.state.sortOrder ? "rating" : "relevance"} labelPosition="before"
                     icon={<i className="material-icons"> {(!this.state.sortOrder || this.state.sortOrder === 'desc') ? "arrow_downward" : "arrow_upward"}</i>}
@@ -152,9 +156,10 @@ class Restaurants extends Component {
                     ))}
                   </GridList>
                 </div>;
-              } else if (this.citySelected) {
-                return <div className="no-results">No data found!</div>;
+              } else if (this.state.loadingRestaurants) {
+                return <div style={{ position: "absolute", top: "48%", left: "48%" }}> <CircularProgress size={40} thickness={5} /></div>;
               }
+
             })()}
 
           {this.state.currentRestaurant &&
