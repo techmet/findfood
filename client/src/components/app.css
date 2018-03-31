@@ -8,9 +8,13 @@ body {
 .App-header {
   background-color: #cb202d;
   height: 50px;
-  padding: 10px;
   color: white;
   padding-top: 1px;
+  position: fixed;
+  width: 100%;
+  padding: 10px;
+  padding-top: 1px;
+  z-index: 10;
 }
 
 .App-title {
@@ -20,6 +24,10 @@ body {
 
 .App-intro {
   font-size: large;
+}
+
+.App-container{
+  padding-top: 60px;
 }
 
 /* select css */

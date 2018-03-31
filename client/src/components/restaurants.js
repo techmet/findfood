@@ -44,10 +44,16 @@ class Restaurants extends Component {
   }
 
   getRestaurants = async (cityId) => {
-    const resp = await get(restaurantsUrl, { params: { cityId } });
-    if (Array.isArray(resp.restaurants)) {
+    try {
+      const resp = await get(restaurantsUrl, { params: { cityId } });
+      if (Array.isArray(resp.restaurants)) {
+        this.setState({
+          restaurants: resp.restaurants.map(item => item.restaurant)
+        });
+      }
+    } catch (error) {
       this.setState({
-        restaurants: resp.restaurants.map(item => item.restaurant)
+        restaurants: []
       });
     }
   }
@@ -68,7 +74,7 @@ class Restaurants extends Component {
         <div style={this.styles.restaurants}>
           <CurrentLocation handleCityDelete={this.handleCityDelete} handleCitySelect={this.handleCitySelect} />
         </div>
-        <div>
+       <div>
           <GridList
             style={this.styles.gridList}
           >

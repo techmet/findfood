@@ -27,18 +27,20 @@ class App extends Component {
         <header className="App-header">
           <h1 className="App-title">zomato lite</h1>
         </header>
-        {(() => {
-          if (this.hasCurrentLocation()) {
-            return <Restaurants />
-          } else {
-            return <Dialog
-              title="Current Location"
-              modal={true}
-              open={this.state.open}>
-              <CurrentLocation fullWidth={true} handleCitySelect={this.handleCitySelect} />
-            </Dialog>
-          }
-        })()}
+        <div className="App-container">
+          {(() => {
+            if (this.hasCurrentLocation()) {
+              return <Restaurants />
+            } else {
+              return <Dialog
+                title="Current Location"
+                modal={true}
+                open={this.state.open}>
+                <CurrentLocation fullWidth={true} handleCitySelect={this.handleCitySelect} />
+              </Dialog>
+            }
+          })()}
+        </div>
       </div>
     );
   }
