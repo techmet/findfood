@@ -5,10 +5,11 @@ import { isMobile } from 'react-device-detect';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import CircularProgress from 'material-ui/CircularProgress';
+import { Card, CardActions, CardHeader, CardText } from 'material-ui/Card';
 
 import CurrentLocation from "./currentlocation";
 import { get } from '../common/http';
-import { restaurantsUrl } from '../common/constants';
+import { restaurantsUrl, zomatoLiteYellow } from '../common/constants';
 import { getCurrentCity } from "../common/city";
 import image from '../common/restaurant.jpg';
 // import Restaurant from "./restaurant";
@@ -117,15 +118,38 @@ class Restaurants extends Component {
           <CurrentLocation handleCityDelete={this.handleCityDelete} handleCitySelect={this.handleCitySelect} />
         </div>
         <div>
-          <Subheader style={{ fontSize: 17 }}>Restaurants</Subheader>
+          <div>
+            {this.state.citySelected && <Subheader style={{ fontSize: 17 }}>Restaurants</Subheader>}
+            <div style=
+              {{
+                height: 100,
+                margin: isMobile ? "10px 2% 0 2%" : "10px 0.5% 0 0.5%",
+                width: isMobile ? '96%' : '99%',
+                display: 'inline-block',
+                borderRadius: 5
+              }} >
+              <Card style={{ backgroundColor: "#eee" }}>
+                <CardHeader
+                  subtitle="Search"
+                  actAsExpander={true}
+                  showExpandableButton={true}
+                  style={{ color: "#7f7d7d" }}
+                />
+                <CardText expandable={true}>
+                </CardText>
+              </Card>
+            </div>
+          </div>
+          <div>
+            <FlatButton disableTouchRipple={true} onClick={this.sortRestaurants} label={this.state.sortOrder ? "rating" : "relevance"} labelPosition="before"
+              icon={<i className="material-icons"> {(!this.state.sortOrder || this.state.sortOrder === 'desc') ? "arrow_downward" : "arrow_upward"}</i>}
+              style={{ color: "green" }} />
+            <br />
+          </div>
           {(
             () => {
               if (this.state.restaurants.length > 0) {
                 return <div>
-
-                  <FlatButton onClick={this.sortRestaurants} label={this.state.sortOrder ? "rating" : "relevance"} labelPosition="before"
-                    icon={<i className="material-icons"> {(!this.state.sortOrder || this.state.sortOrder === 'desc') ? "arrow_downward" : "arrow_upward"}</i>}
-                    style={{ color: "green" }} />
                   <GridList
                     style={this.styles.gridList}
                     padding={isMobile ? 6 : 10}
