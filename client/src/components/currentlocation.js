@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import AutoComplete from 'material-ui/AutoComplete';
 import Chip from 'material-ui/Chip';
+import MapsPlace from 'material-ui/svg-icons/maps/place';
 
 import { get } from '../common/http';
 import { citiesUrl, zomatoLiteRed } from '../common/constants';
@@ -73,7 +74,7 @@ class CurrentLocation extends Component {
             return <Chip
                 onRequestDelete={this.handleRequestDelete}
                 style={{ marginTop: 10, margin: 4, padding: 2 }}>
-                <i className="material-icons">location_city</i>
+                <MapsPlace style={{verticalAlign:'middle'}} />
                 <strong> <span style={{ color: zomatoLiteRed, verticalAlign: 'top' }}> {this.state.city}</span></strong>
             </Chip>;
         } else {

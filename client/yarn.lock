@@ -4675,10 +4675,6 @@ node-fetch@^1.0.1:
     encoding "^0.1.11"
     is-stream "^1.0.1"
 
-node-fetch@^2.1.2:
-  version "2.1.2"
-  resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.1.2.tgz#ab884e8e7e57e38a944753cec706f788d1768bb5"
-
 node-forge@0.7.1:
   version "0.7.1"
   resolved "https://registry.yarnpkg.com/node-forge/-/node-forge-0.7.1.tgz#9da611ea08982f4b94206b3beb4cc9665f20c300"
@@ -5644,6 +5640,10 @@ react-dev-utils@^5.0.0:
     sockjs-client "1.1.4"
     strip-ansi "3.0.1"
     text-table "0.2.0"
+
+react-device-detect@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/react-device-detect/-/react-device-detect-1.0.1.tgz#3a79474729e472cf8e63d104b4c74866f565bdc2"
 
 react-dom@^16.3.0:
   version "16.3.0"
