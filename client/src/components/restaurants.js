@@ -2,17 +2,21 @@ import React, { Component } from 'react';
 import { GridList, GridTile } from 'material-ui/GridList';
 import Subheader from 'material-ui/Subheader';
 import { isMobile } from 'react-device-detect';
+import Dialog from 'material-ui/Dialog';
+import FlatButton from 'material-ui/FlatButton';
 
 import CurrentLocation from "./currentlocation";
 import { get } from '../common/http';
 import { restaurantsUrl } from '../common/constants';
 import { getCurrentCity } from "../common/city";
 import image from '../common/restaurant.jpg';
+// import Restaurant from "./restaurant";
 
 class Restaurants extends Component {
   state = {
     restaurants: [],
-    citySelected: false
+    citySelected: false,
+    sortOrder: null
   };
 
   styles = {
@@ -24,7 +28,8 @@ class Restaurants extends Component {
     gridList: {
       padding: 10
     },
-    restaurants: { position: 'absolute', right: '5px' }
+    restaurants: { position: 'absolute', right: '5px' },
+    showRestaurant: false
   };
 
   constructor(props) {
@@ -32,6 +37,8 @@ class Restaurants extends Component {
     this.getRestaurants = this.getRestaurants.bind(this);
     this.handleCitySelect = this.handleCitySelect.bind(this);
     this.handleCityDelete = this.handleCityDelete.bind(this);
+    this.handleRestaurantClick = this.handleRestaurantClick.bind(this);
+    this.sortRestaurants = this.sortRestaurants.bind(this);
   }
 
   componentDidMount() {
@@ -41,16 +48,21 @@ class Restaurants extends Component {
   getCurrentLocation = () => {
     const currentLocation = getCurrentCity();
     if (currentLocation) {
+      this.setState({
+        cityId: currentLocation.id
+      });
       this.getRestaurants(currentLocation.id);
+
     }
   }
 
-  getRestaurants = async (cityId) => {
+  getRestaurants = async (cityId, sortOrder) => {
     try {
       this.setState({
         citySelected: true
       });
-      const resp = await get(restaurantsUrl, { params: { cityId } });
+      const sort = sortOrder ? { sortOrder } : {};
+      const resp = await get(restaurantsUrl, { params: { cityId: cityId ? cityId : this.state.cityId, ...sort } });
       if (Array.isArray(resp.restaurants)) {
         this.setState({
           restaurants: resp.restaurants.map(item => item.restaurant)
@@ -64,6 +76,10 @@ class Restaurants extends Component {
   }
 
   handleCitySelect(city) {
+    this.setState({
+      cityId: city.id,
+      sortOrder: null
+    });
     this.getRestaurants(city.id);
   }
 
@@ -71,6 +87,22 @@ class Restaurants extends Component {
     this.setState({
       restaurants: [],
       citySelected: false
+    });
+  }
+
+  handleRestaurantClick(restaurant) {
+    this.setState({
+      showRestaurant: true,
+      currentRestaurant: restaurant
+    });
+  }
+
+  sortRestaurants() {
+    const sortOrder = (!this.state.sortOrder || this.state.sortOrder === 'asc') ?
+      'desc' : 'asc';
+    this.getRestaurants(null, sortOrder);
+    this.setState({
+      sortOrder
     });
   }
 
@@ -84,36 +116,54 @@ class Restaurants extends Component {
           {(
             () => {
               if (this.state.restaurants.length > 0) {
-                return <GridList
-                  style={this.styles.gridList}
-                  padding={isMobile ? 6 : 10}
-                  cols={isMobile ? 1 : 3}
-                >
-                  <Subheader style={{ paddingLeft: 0, fontSize: 17 }}>Restaurants</Subheader>
-                  {this.state.restaurants.map((restaurant) => (
-                    <a target="_blank" href={restaurant.url}>
-                      <GridTile
-                        key={restaurant.id}
-                        title={restaurant.name}
-                        subtitle={<span> <b>{restaurant.cuisines}</b></span>}
-                        actionIcon={
-                          <span title={restaurant.user_rating.rating_text}><span style={{ verticalAlign: 'super', color: 'antiquewhite' }}> {restaurant.user_rating.aggregate_rating}</span>
-                            <i className="material-icons"
-                              style={{ color: `#${restaurant.user_rating.rating_color}` }}>
-                              grade</i>
-                          </span>
-                        }
-                        style={{ borderRadius: 4, boxShadow: "0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 3px 10px 0 rgba(0, 0, 0, 0.19)" }}
-                      >
-                        <img alt="" src={restaurant.featured_image || image} />
-                      </GridTile>
-                    </a>
-                  ))}
-                </GridList>;
+                return <div>
+                  <Subheader style={{ fontSize: 17 }}>Restaurants</Subheader>
+
+                  <FlatButton onClick={this.sortRestaurants} label={this.state.sortOrder ? "rating" : "relevance"} labelPosition="before"
+                    icon={<i className="material-icons"> {(!this.state.sortOrder || this.state.sortOrder === 'desc') ? "arrow_downward" : "arrow_upward"}</i>}
+                    style={{ color: "green" }} />
+                  <GridList
+                    style={this.styles.gridList}
+                    padding={isMobile ? 6 : 10}
+                    cols={isMobile ? 1 : 3}>
+                    {this.state.restaurants.map((restaurant) => (
+                      <a onClick={() => { this.handleRestaurantClick(restaurant) }} style={{ cursor: "pointer" }}>
+                        <GridTile
+                          key={restaurant.id}
+                          title={restaurant.name}
+                          subtitle={<span>
+                            {restaurant.location.locality}
+                            <br />
+                            <b> {restaurant.cuisines}</b>
+                          </span>}
+                          actionIcon={
+                            <span title={restaurant.user_rating.rating_text}><span style={{ verticalAlign: 'super', color: 'antiquewhite' }}> {restaurant.user_rating.aggregate_rating}</span>
+                              <i className="material-icons"
+                                style={{ color: `#${restaurant.user_rating.rating_color}` }}>
+                                grade</i>
+                            </span>
+                          }
+                          style={{ borderRadius: 4, boxShadow: "0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 3px 10px 0 rgba(0, 0, 0, 0.19)" }}
+
+                        >
+                          <img alt="" src={restaurant.featured_image || image} />
+                        </GridTile>
+                      </a>
+                    ))}
+                  </GridList>
+                </div>;
               } else if (this.citySelected) {
                 return <div className="no-results">No data found!</div>;
               }
             })()}
+
+          {this.state.currentRestaurant &&
+            <Dialog
+              title={this.state.currentRestaurant.name}
+              modal={true}
+              open={this.state.showRestaurant}>
+              {/* <Restaurant restaurant={this.state.currentRestaurant} /> */}
+            </Dialog>}
         </div>
       </div>
     );

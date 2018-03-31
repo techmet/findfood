@@ -9,7 +9,7 @@ const zomatoAPIKeyHeader = {
 const routes = (router) => {
     router.get('/api/cities', (req, res) => {
         if (req.query && req.query.name) {
-            var options = {
+            const options = {
                 method: 'GET',
                 url: `${zomatoApiUrl}cities`,
                 qs: {
@@ -32,17 +32,27 @@ const routes = (router) => {
     });
 
     router.get('/api/restaurants/search', (req, res) => {
-        if (req.query && req.query.cityId) {
-            var options = {
+        if (req.query) {
+            const { cityId, sortOrder } = req.query;
+            const entity = cityId ? {
+                entity_id: cityId,
+                entity_type: 'city'
+            } : {};
+            const sort = sortOrder ? {
+                sort: "rating", order: sortOrder
+            } : {};
+
+            const options = {
                 method: 'GET',
                 url: `${zomatoApiUrl}search`,
                 qs: {
-                    entity_id: req.query.cityId,
-                    entity_type: 'city'
+                    ...entity,
+                    ...sort
                 },
                 headers: zomatoAPIKeyHeader
             };
 
+            console.log(options);
             request(options, function (error, response, body) {
                 if (error) throw new Error(error);
                 const resp = JSON.parse(body);
