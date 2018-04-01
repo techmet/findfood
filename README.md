@@ -8,6 +8,7 @@ Find food is a light weight restaurant search app which is built using react, ma
 * User doesn't use both searches simultaneously.
 * Order details means the full details of the restaurant.
 * On initial load the results should be displayed for current location.  
+* App should be responsive means when the app the look good on all devices (desktops, tablets, and phones).
 
 ### Development
 
