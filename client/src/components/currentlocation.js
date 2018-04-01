@@ -10,6 +10,7 @@ import { getCurrentCity, setCity, removeCity } from "../common/city";
 class CurrentLocation extends Component {
     state = {
         city: '',
+        country_flag_url: '',
         cities: [],
         editMode: false
     };
@@ -32,7 +33,8 @@ class CurrentLocation extends Component {
         const currentLocation = getCurrentCity();
         if (currentLocation) {
             this.setState({
-                city: currentLocation.name
+                city: currentLocation.name,
+                country_flag_url: currentLocation.country_flag_url
             });
         }
     }
@@ -52,6 +54,7 @@ class CurrentLocation extends Component {
         setCity(city);
         this.setState({
             city: city.name,
+            country_flag_url: city.country_flag_url,
             editMode: false
         });
         if (this.props.handleCitySelect) {
@@ -74,7 +77,8 @@ class CurrentLocation extends Component {
             return <Chip
                 onRequestDelete={this.handleRequestDelete}
                 style={{ marginTop: 10, margin: 4, padding: 2 }}>
-                <MapsPlace style={{verticalAlign:'middle'}} />
+                {/* <MapsPlace style={{ verticalAlign: 'middle' }} /> */}
+                <img style={{ borderRadius: "50%", verticalAlign: 'middle', height: 25, width: 25 }} src={this.state.country_flag_url} alt="" />
                 <strong> <span style={{ color: zomatoLiteRed, verticalAlign: 'top' }}> {this.state.city}</span></strong>
             </Chip>;
         } else {
@@ -84,8 +88,6 @@ class CurrentLocation extends Component {
                 dataSourceConfig={this.dataSourceConfig}
                 onNewRequest={this.handleNewRequest}
                 onUpdateInput={this.handleUpdateInput}
-                filter={AutoComplete.caseInsensitiveFilter}
-                openOnFocus={true}
                 fullWidth={this.props.fullWidth}
             />
         }

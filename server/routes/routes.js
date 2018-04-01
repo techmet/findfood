@@ -1,16 +1,16 @@
-const request = require("request");
+import request from "request";
 
-const zomatoApiUrl = 'https://developers.zomato.com/api/v2.1/';
+const zomatoApiUrl = "https://developers.zomato.com/api/v2.1/";
 
 const zomatoAPIKeyHeader = {
-    'user-key': '3114118dcc5cd8f18ae49df284f7305b'
+    "user-key": "78a4b878b82ea0c1dd7b4805ea67feaa"
 };
 
 const routes = (router) => {
-    router.get('/api/cities', (req, res) => {
+    router.get("/api/cities", (req, res) => {
         if (req.query && req.query.name) {
             const options = {
-                method: 'GET',
+                method: "GET",
                 url: `${zomatoApiUrl}cities`,
                 qs: {
                     q: req.query.name
@@ -31,28 +31,33 @@ const routes = (router) => {
         }
     });
 
-    router.get('/api/restaurants/search', (req, res) => {
+    router.get("/api/restaurants/search", (req, res) => {
         if (req.query) {
-            const { cityId, sortOrder } = req.query;
+            const { cityId, sortOrder, query, count } = req.query;
             const entity = cityId ? {
                 entity_id: cityId,
-                entity_type: 'city'
+                entity_type: "city"
             } : {};
             const sort = sortOrder ? {
                 sort: "rating", order: sortOrder
             } : {};
 
+            const searchQuery = query ? {
+                q: query
+            } : {};
+
             const options = {
-                method: 'GET',
+                method: "GET",
                 url: `${zomatoApiUrl}search`,
                 qs: {
                     ...entity,
-                    ...sort
+                    ...sort,
+                    ...searchQuery,
+                    count
                 },
                 headers: zomatoAPIKeyHeader
             };
 
-            console.log(options);
             request(options, function (error, response, body) {
                 if (error) throw new Error(error);
                 const resp = JSON.parse(body);
@@ -66,6 +71,62 @@ const routes = (router) => {
             });
         }
     });
+
+    router.get("/api/categories", (req, res) => {
+        const options = {
+            method: "GET",
+            url: `${zomatoApiUrl}categories`,
+            headers: zomatoAPIKeyHeader
+        };
+
+        request(options, function (error, response, body) {
+            if (error) throw new Error(error);
+            res.send(JSON.parse(body));
+            res.end();
+        });
+
+    });
+
+    router.get("/api/cuisines", (req, res) => {
+        const { cityId } = req.query;
+        const entity = cityId ? {
+            city_id: cityId
+        } : {};
+        const options = {
+            method: "GET",
+            url: `${zomatoApiUrl}cuisines`,
+            headers: zomatoAPIKeyHeader,
+            qs: {
+                ...entity
+            }
+        };
+
+        request(options, function (error, response, body) {
+            if (error) throw new Error(error);
+            res.send(JSON.parse(body));
+            res.end();
+        });
+
+    });
+
+    router.get("/api/locations", (req, res) => {
+        const { query } = req.query;
+        const options = {
+            method: "GET",
+            url: `${zomatoApiUrl}locations`,
+            headers: zomatoAPIKeyHeader,
+            qs: {
+                query
+            }
+        };
+        request(options, function (error, response, body) {
+            if (error) throw new Error(error);
+            res.send(JSON.parse(body));
+            res.end();
+        });
+
+    });
+
 }
 
 export default routes;

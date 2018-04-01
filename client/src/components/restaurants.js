@@ -21,11 +21,6 @@ class Restaurants extends Component {
   };
 
   styles = {
-    root: {
-      display: "flex",
-      flexWrap: "wrap",
-      justifyContent: "space-around",
-    },
     gridList: {
       padding: 10
     },
@@ -73,9 +68,6 @@ class Restaurants extends Component {
         });
       }
     } catch (error) {
-      this.setState({
-        restaurants: []
-      });
     }
   }
 
@@ -110,6 +102,10 @@ class Restaurants extends Component {
     });
   }
 
+  fetchSearchResults(activeSearchItem, searchType) {
+    this.getRestaurants();
+  }
+
   render() {
     return (
       <div>
@@ -118,7 +114,7 @@ class Restaurants extends Component {
           {this.state.citySelected && <Subheader style={{ fontSize: 17 }}>Restaurants</Subheader>}
         </div>
         {this.state.citySelected && <div>
-          <RestaurantSearch />
+          <RestaurantSearch handleSearch={this.fetchSearchResults} cityId={this.state.cityId} />
           <div onClick={this.sortRestaurants}
             style={{
               color: "green", cursor: "pointer", display: "flex", flexDirection: "row-reverse",
@@ -163,7 +159,7 @@ class Restaurants extends Component {
                   ))}
                 </GridList>
               } else if (this.state.loadingRestaurants) {
-                return <div style={{ position: "absolute", left: "45%" }}> <CircularProgress size={40} thickness={5} /></div>;
+                return <div style={{ position: "absolute", left: "47%" }}> <CircularProgress size={40} thickness={5} /></div>;
               }
             })()}
         </div>
