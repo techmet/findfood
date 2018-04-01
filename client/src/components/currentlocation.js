@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import AutoComplete from 'material-ui/AutoComplete';
 import Chip from 'material-ui/Chip';
-import MapsPlace from 'material-ui/svg-icons/maps/place';
 
 import { get } from '../common/http';
 import { citiesUrl, zomatoLiteRed } from '../common/constants';

@@ -33,10 +33,10 @@ const routes = (router) => {
 
     router.get("/api/restaurants/search", (req, res) => {
         if (req.query) {
-            const { cityId, sortOrder, query, count } = req.query;
-            const entity = cityId ? {
-                entity_id: cityId,
-                entity_type: "city"
+            const { entityId, entityType, sortOrder, query, count, cuisines, category } = req.query;
+            const entity = entityId ? {
+                entity_id: entityId,
+                entity_type: entityType || "city"
             } : {};
             const sort = sortOrder ? {
                 sort: "rating", order: sortOrder
@@ -53,11 +53,13 @@ const routes = (router) => {
                     ...entity,
                     ...sort,
                     ...searchQuery,
-                    count
+                    count,
+                    cuisines,
+                    category
                 },
                 headers: zomatoAPIKeyHeader
             };
-
+            console.log(options);
             request(options, function (error, response, body) {
                 if (error) throw new Error(error);
                 const resp = JSON.parse(body);

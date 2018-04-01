@@ -5,9 +5,12 @@ import AutoComplete from 'material-ui/AutoComplete';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 import RaisedButton from 'material-ui/RaisedButton';
+import Dialog from "material-ui/Dialog";
+import FlatButton from 'material-ui/FlatButton';
 
 import { get } from "../common/http";
 import { restaurantsUrl, categoriesUrl, cuisinesUrl, locationsUrl } from "../common/constants";
+import Restaurant from "./restaurant";
 
 class RestaurantSearch extends Component {
     state = {
@@ -16,7 +19,9 @@ class RestaurantSearch extends Component {
         searchType: "category",
         categories: [],
         cuisines: [],
-        activeSearchItem: null
+        activeSearchItem: null,
+        currentRestaurant: null,
+        showRestaurant: false
     };
 
     constructor(props) {
@@ -26,6 +31,8 @@ class RestaurantSearch extends Component {
         this.getRestaurantBySearchType = this.getRestaurantBySearchType.bind(this);
         this.handleNewRequest = this.handleNewRequest.bind(this);
         this.handleSearchClick = this.handleSearchClick.bind(this);
+        this.handleSelectRestaurant = this.handleSelectRestaurant.bind(this);
+        this.handleDialogClose = this.handleDialogClose.bind(this);
     }
 
     componentDidMount() {
@@ -34,11 +41,18 @@ class RestaurantSearch extends Component {
     }
 
     handleSearchTypeChange(event, index, value) {
+        this.refs[`searchTypeAutocomplete`].setState({ searchText: '' });
         this.setState({
             searchType: value
         });
     }
-
+    handleSelectRestaurant(restaurant) {
+        this.refs[`nameAutocomplete`].setState({ searchText: '' });
+        this.setState({
+            currentRestaurant: restaurant,
+            showRestaurant: true
+        });
+    }
     getRestaurantByName = async (searchText) => {
         this.setState({
             restaurants: [
@@ -46,12 +60,18 @@ class RestaurantSearch extends Component {
         });
         try {
             const { cityId } = this.props;
-            const resp = await get(restaurantsUrl, { params: { cityId, query: searchText, count: 10 } });
+            const resp = await get(restaurantsUrl, {
+                params: {
+                    entityId: cityId,
+                    entityType: "city", query: searchText, count: 10
+                }
+            });
 
             this.setState({
                 restaurants: resp.restaurants.map(item => ({
                     text: item.restaurant.name,
-                    value: (< MenuItem primaryText={`${item.restaurant.name},
+                    value: (<MenuItem onClick={() => { this.handleSelectRestaurant(item) }}
+                        primaryText={`${item.restaurant.name},
                     ${item.restaurant.user_rating.aggregate_rating},
                     ${item.restaurant.location.locality}`} />)
                 }))
@@ -134,6 +154,12 @@ class RestaurantSearch extends Component {
         }
     }
 
+    handleDialogClose() {
+        this.setState({
+            showRestaurant: false
+        });
+    }
+
     render() {
         return (<div style=
             {{
@@ -153,6 +179,7 @@ class RestaurantSearch extends Component {
                     <div style={{ display: isMobile ? "block" : "flex", justifyContent: "space-between" }}>
                         <div style={isMobile ? {} : { width: "40%" }}>
                             <AutoComplete
+                                ref="nameAutocomplete"
                                 hintText="Search Restaurant by name"
                                 dataSource={this.state.restaurants}
                                 onUpdateInput={this.getRestaurantByName}
@@ -160,12 +187,12 @@ class RestaurantSearch extends Component {
                                 filter={AutoComplete.noFilter}
                             />
                         </div>
-                        {isMobile && <hr align="center" style={{
+                        {/* {isMobile && <hr align="center" style={{
                             height: 2,
                             width: "50%",
                             border: "none",
                             backgroundColor: "#d2cfcf"
-                        }} />}
+                        }} />} */}
                         <div style={isMobile ? {} : { width: "25%", marginTop: "-24px", borderLeft: "2px solid #d2cfcf", paddingLeft: "2%" }}>
                             <SelectField
                                 floatingLabelText="Select search type"
@@ -180,6 +207,7 @@ class RestaurantSearch extends Component {
                         </div>
                         <div style={isMobile ? {} : { width: "30%" }}>
                             <AutoComplete
+                                ref="searchTypeAutocomplete"
                                 hintText={`Search for ${this.state.searchType}`}
                                 dataSource={this.state.restaurantsBySearchType}
                                 onNewRequest={this.handleNewRequest}
@@ -194,6 +222,20 @@ class RestaurantSearch extends Component {
                     </div>
                 </CardText>
             </Card>
+            {this.state.currentRestaurant &&
+                <Dialog
+                    title={this.state.currentRestaurant.name}
+                    modal={false}
+                    open={this.state.showRestaurant}
+                    actions={<FlatButton
+                        label="Ok"
+                        primary={true}
+                        onClick={this.handleDialogClose}
+                    />}
+                    autoScrollBodyContent={true}
+                >
+                    <Restaurant restaurant={this.state.currentRestaurant} />
+                </Dialog>}
         </div>);
     }
 }

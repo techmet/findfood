@@ -4,6 +4,7 @@ import Subheader from "material-ui/Subheader";
 import { isMobile } from "react-device-detect";
 import Dialog from "material-ui/Dialog";
 import CircularProgress from "material-ui/CircularProgress";
+import FlatButton from 'material-ui/FlatButton';
 
 import CurrentLocation from "./currentlocation";
 import { get } from "../common/http";
@@ -11,13 +12,14 @@ import { restaurantsUrl } from "../common/constants";
 import { getCurrentCity } from "../common/city";
 import image from "../common/restaurant.jpg";
 import RestaurantSearch from "./restaurantsearch";
-// import Restaurant from "./restaurant";
+import Restaurant from "./restaurant";
 
 class Restaurants extends Component {
   state = {
     restaurants: [],
     citySelected: false,
-    sortOrder: null
+    sortOrder: null,
+    entityType: "city"
   };
 
   styles = {
@@ -35,6 +37,8 @@ class Restaurants extends Component {
     this.handleCityDelete = this.handleCityDelete.bind(this);
     this.handleRestaurantClick = this.handleRestaurantClick.bind(this);
     this.sortRestaurants = this.sortRestaurants.bind(this);
+    this.fetchSearchResults = this.fetchSearchResults.bind(this);
+    this.handleDialogClose = this.handleDialogClose.bind(this);
   }
 
   componentDidMount() {
@@ -45,14 +49,15 @@ class Restaurants extends Component {
     const currentLocation = getCurrentCity();
     if (currentLocation) {
       this.setState({
-        cityId: currentLocation.id
+        cityId: currentLocation.id,
+        activeSearchItem: null
       });
-      this.getRestaurants(currentLocation.id);
+      this.getRestaurants({ entityId: currentLocation.id, entityType: "city" });
 
     }
   }
 
-  getRestaurants = async (cityId, sortOrder) => {
+  getRestaurants = async ({ entityId, entityType, category, sortOrder, cuisines }) => {
     try {
       this.setState({
         citySelected: true,
@@ -60,7 +65,7 @@ class Restaurants extends Component {
         restaurants: []
       });
       const sort = sortOrder ? { sortOrder } : {};
-      const resp = await get(restaurantsUrl, { params: { cityId: cityId ? cityId : this.state.cityId, ...sort } });
+      const resp = await get(restaurantsUrl, { params: { entityId, entityType, category, ...sort, cuisines } });
       if (Array.isArray(resp.restaurants)) {
         this.setState({
           restaurants: resp.restaurants.map(item => item.restaurant),
@@ -74,9 +79,11 @@ class Restaurants extends Component {
   handleCitySelect(city) {
     this.setState({
       cityId: city.id,
-      sortOrder: null
+      sortOrder: null,
+      entityType: "city",
+      activeSearchItem: null
     });
-    this.getRestaurants(city.id);
+    this.getRestaurants({ entityId: city.id, entityType: "city" });
   }
 
   handleCityDelete() {
@@ -96,14 +103,45 @@ class Restaurants extends Component {
   sortRestaurants() {
     const sortOrder = (!this.state.sortOrder || this.state.sortOrder === "asc") ?
       "desc" : "asc";
-    this.getRestaurants(null, sortOrder);
+    let searchObj;
+    if (this.state.activeSearchItem) {
+      const { searchType, entity_id, entity_type, value } = this.state.activeSearchItem;
+      searchObj = searchType === "locality" ? { entityId: entity_id, entityType: entity_type }
+        : searchType === "category" ? { entityId: this.state.cityId, entityType: "city", category: value }
+          : { entityId: this.state.cityId, entityType: "city", cuisines: value };
+
+    } else {
+      searchObj = { entityId: this.state.cityId, entityType: "city" };
+    }
+    this.getRestaurants({ sortOrder, ...searchObj });
     this.setState({
       sortOrder
     });
   }
 
   fetchSearchResults(activeSearchItem, searchType) {
-    this.getRestaurants();
+
+    if (searchType === "locality") {
+      activeSearchItem = activeSearchItem.value;
+      this.getRestaurants({
+        sortOrder: this.state.sortOrder,
+        entityId: activeSearchItem.entity_id, entityType: activeSearchItem.entity_type
+      });
+    } else {
+      const searchObj = searchType === "category" ?
+        { category: activeSearchItem.value } : { cuisines: activeSearchItem.value };
+      this.getRestaurants({
+        sortOrder: this.state.sortOrder,
+        entityId: this.state.cityId, entityType: "city", ...searchObj
+      });
+    }
+    this.setState({
+      activeSearchItem: { ...activeSearchItem, searchType }
+    });
+  }
+
+  handleDialogClose() {
+    this.setState({ showRestaurant: false });
   }
 
   render() {
@@ -134,9 +172,8 @@ class Restaurants extends Component {
                   padding={isMobile ? 6 : 10}
                   cols={isMobile ? 1 : 3}>
                   {this.state.restaurants.map((restaurant) => (
-                    <a onClick={() => { this.handleRestaurantClick(restaurant) }} style={{ cursor: "pointer" }}>
+                    <a key={`id-${restaurant.id}`} onClick={() => { this.handleRestaurantClick(restaurant) }} style={{ cursor: "pointer" }}>
                       <GridTile
-                        key={restaurant.id}
                         title={restaurant.name}
                         subtitle={<span>
                           {restaurant.location.locality}
@@ -167,8 +204,15 @@ class Restaurants extends Component {
           <Dialog
             title={this.state.currentRestaurant.name}
             modal={false}
-            open={this.state.showRestaurant}>
-            {/* <Restaurant restaurant={this.state.currentRestaurant} /> */}
+            open={this.state.showRestaurant}
+            actions={<FlatButton
+              label="Ok"
+              primary={true}
+              onClick={this.handleDialogClose}
+            />}
+            autoScrollBodyContent={true}
+          >
+            <Restaurant restaurant={this.state.currentRestaurant} />
           </Dialog>}
       </div>
     );
