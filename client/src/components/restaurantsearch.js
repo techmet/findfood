@@ -49,7 +49,7 @@ class RestaurantSearch extends Component {
     handleSelectRestaurant(restaurant) {
         this.refs[`nameAutocomplete`].setState({ searchText: '' });
         this.setState({
-            currentRestaurant: restaurant,
+            currentRestaurant: restaurant.restaurant,
             showRestaurant: true
         });
     }

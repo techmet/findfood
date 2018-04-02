@@ -59,7 +59,6 @@ const routes = (router) => {
                 },
                 headers: zomatoAPIKeyHeader
             };
-            console.log(options);
             request(options, function (error, response, body) {
                 if (error) throw new Error(error);
                 const resp = JSON.parse(body);

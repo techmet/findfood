@@ -8,7 +8,7 @@ Find food is a light weight restaurant search app which is built using react, ma
 * User doesn't use both searches simultaneously.
 * Order details means the full details of the restaurant.
 * On initial load the results should be displayed for current location.  
-* App should be responsive means when the app the look good on all devices (desktops, tablets, and phones).
+* App should be responsive means the app should look good on all devices (desktops, tablets, and phones).
 
 ### Development
 
@@ -17,3 +17,6 @@ Find food is a light weight restaurant search app which is built using react, ma
 * Run dev watch builds- `yarn start`
 
 To create a build, run `yarn build`.
+
+Note: 
+* If you have trouble in running the application using `yarn start` from the root folder, please try by running `yarn start` in both client and server folder separately.
